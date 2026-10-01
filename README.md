@@ -1,4 +1,22 @@
-ChordRes — MIDI でボイシングを指定するレゾネーター (VST3)
+# ChordRes — MIDI でボイシングを指定するレゾネーター (VST3)
+
+コードは Claude Code (Anthropic の AI) が書き、MIDy が仕様を決めて Ableton Live で確認しました。
+無保証です。サポート・不具合対応・要望への対応はしません (Issue / Pull Request も受け付けません)。
+ライセンスは AGPLv3 (LICENSE)。JUCE (AGPLv3) と VST3 SDK (MIT) を使っています。Copyright (C) 2026 MIDy
+
+Made with Claude Code. Provided as-is, without support. Issues and pull requests are not accepted. Licensed under AGPLv3.
+
+**ダウンロード**: Releases に Mac 版 (Intel / Apple Silicon 両対応) と Windows 版 (x64) の zip があります。
+
+- Mac: `ChordRes.vst3` を `~/Library/Audio/Plug-Ins/VST3/` に入れる。署名していないので、入れたあとターミナルで
+
+  ```
+  xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/ChordRes.vst3
+  ```
+
+- Windows: `ChordRes.vst3` フォルダごと `C:\Program Files\Common Files\VST3\` に入れる
+
+ビルド方法は CLAUDE.md の「ビルド」。
 
 入力音に、MIDI で押さえたノートの音程で共鳴をかけるオーディオエフェクト。
 FFT は使わず時間領域だけで処理する。
