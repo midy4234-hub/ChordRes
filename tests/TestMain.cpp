@@ -7,6 +7,7 @@
 #include <juce_dsp/juce_dsp.h>
 #include "../Source/PluginProcessor.h"
 #include "../Source/PluginEditor.h"
+#include "LabTest.h"
 
 namespace
 {
@@ -490,9 +491,69 @@ static void snapshotUi()
     std::printf ("\n[5] UI snapshot -> %s\n", f.getFullPathName().toRawUTF8());
 }
 
-int main()
+int main (int argc, char* argv[])
 {
     juce::ScopedJuceInitialiser_GUI init;
+    if (argc > 1 && juce::String (argv[1]) == "srprobe")
+    {
+        // 調査用: サンプルレートで音量が変わる原因を、設定ごとに 48k と 96k で比べる
+        auto midi = [] (double, int len)
+        {
+            std::vector<lab::MidiAt> ev;
+            for (int note : { 60, 64, 67 })
+            {
+                ev.push_back ({ 0, juce::MidiMessage::noteOn (1, note, (juce::uint8) 100) });
+                ev.push_back ({ (int) (len * 0.7), juce::MidiMessage::noteOff (1, note) });
+            }
+            return ev;
+        };
+        struct Case { const char* name; std::vector<std::pair<const char*, float>> kv; };
+        std::vector<Case> cases = {
+            { "default", {} },
+            { "mode String", { { "mode", 0 } } }, { "mode Bank", { { "mode", 1 } } }, { "mode Tube", { { "mode", 2 } } },
+            { "safety off", { { "safety", 0 } } }, { "filter off", { { "ftype", 0 } } }, { "width 0", { { "width", 0 } } },
+            { "mix 1 (wet only)", { { "mix", 1 } } }, { "mix 0 (dry only)", { { "mix", 0 } } },
+            { "wet only, safety off, filter off", { { "mix", 1 }, { "safety", 0 }, { "ftype", 0 } } },
+        };
+        for (auto& c : cases)
+        {
+            double lv[2];
+            int k = 0;
+            for (double sr : { 48000.0, 96000.0 })
+            {
+                ChordResAudioProcessor p;
+                lab::prepare (p, sr, 4096);
+                for (auto& [id, v] : c.kv) lab::setParam (p, id, v);
+                lab::prepare (p, sr, 4096);
+                lab::RunOptions o;
+                const int n = (int) (sr * 2.0);
+                o.midi = midi (sr, n);
+                auto out = lab::runWith (p, lab::robust_detail::testSignal (sr, 2.0), o);
+                lv[k++] = lab::robust_detail::audibleRmsDb (out, sr);
+            }
+            std::printf ("  %-34s 48k %6.2f dB, 96k %6.2f dB, diff %+5.2f\n", c.name, lv[0], lv[1], lv[1] - lv[0]);
+        }
+        return 0;
+    }
+    if (argc > 1 && juce::String (argv[1]) == "robust")
+    {
+        // 耐久テスト (PluginLab/juce/common/LabRobust.h)。C3・E3・G3 を頭から 70 % の長さまで鳴らす
+        lab::RobustConfig cfg;
+        cfg.midi = [] (double, int len)
+        {
+            std::vector<lab::MidiAt> ev;
+            for (int note : { 60, 64, 67 })
+            {
+                ev.push_back ({ 0, juce::MidiMessage::noteOn (1, note, (juce::uint8) 100) });
+                ev.push_back ({ (int) (len * 0.7), juce::MidiMessage::noteOff (1, note) });
+            }
+            return ev;
+        };
+        // Transpose とフィルターの種類は切り替えの瞬間にクリックが出る (+27〜30 dB) が、オートメーションしない前提で
+        // 直さないとユーザーが判断した (2026-09-26)。クリック試験から外す
+        cfg.skipAutomation = { "transpose", "ftype" };
+        return lab::robustMain<ChordResAudioProcessor> (cfg);
+    }
     testTuning();
     testStability();
     testTube();

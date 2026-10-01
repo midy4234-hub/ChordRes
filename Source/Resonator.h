@@ -319,7 +319,10 @@ namespace chordres
                 b.a1[count] = (float) (2.0 * r * std::cos (w));
                 b.a2[count] = (float) (r * r);
                 // (1 - z^-2) / (1 - a1 z^-1 + a2 z^-2) の雑音電力利得は 2 / (1 - r^2)
-                b.b0[count] = (float) (ak * std::sqrt ((1.0 - r * r) * 0.5));
+                // ただしこれは「1 サンプルあたり」の白色雑音での利得。実際の音の成分は可聴域にあるので、
+                // サンプルレートが 2 倍になると共鳴の出力パワーも 2 倍 (+3 dB) になっていた。
+                // √(48000/fs) を掛けて 48 kHz の振る舞いにそろえる (48 kHz では従来と同じ。lab.py robust で発覚)
+                b.b0[count] = (float) (ak * std::sqrt ((1.0 - r * r) * 0.5 * 48000.0 / fs));
 
                 amp[count] = ak;
                 ampSq += ak * ak;
