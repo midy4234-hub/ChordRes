@@ -30,4 +30,10 @@ jobs:
       - name: Build
         run: cmake --build build-test --config Release --target ChordResTest --parallel
       - name: Robust
-        run: ./build-test/ChordResTest_artefacts/Release/ChordResTest.exe robust
+        shell: cmd
+        run: |
+          build-test\ChordResTest_artefacts\Release\ChordResTest.exe robust > robust.txt 2>&1
+          set rc=%ERRORLEVEL%
+          type robust.txt
+          echo exit code %rc%
+          exit /b %rc%
