@@ -86,7 +86,8 @@ MIDI で押さえたノートの音程で、入力音に共鳴をかけるオー
 
 - 音程は全域 ±0.5 ct 以内、T60 は設定値どおり、60 秒ノイズで発振なし、ノイズ入力で両モードの出力が入力比 ±3 dB 程度
 - CPU 12 ボイスで String 0.5 % / Bank 1.4 %
-- 耐久テスト (robust) 全 PASS。Bank のサンプルレート依存 (+3 dB) は修正済み (48 kHz の結果は不変)
+- 耐久テスト (robust) は 0 FAIL / 1 WARN (Mode と Safety の切り替え瞬間のクリック)。Bank のサンプルレート依存 (+3 dB) は修正済み (48 kHz の結果は不変)
+- Windows (GitHub Actions、MSVC) でも robust の数値は Mac と同じ (2026-10-01)
 
 ## ビルド
 
