@@ -1,5 +1,14 @@
 # ChordRes — MIDI でボイシングを指定するレゾネーター (VST3)
 
+デモ
+
+https://github.com/user-attachments/assets/b34533b1-6a03-4613-9199-ac9416503d6d
+
+
+Scramble と組み合わせたデモ
+
+https://github.com/user-attachments/assets/a8505fe1-58d1-496c-8507-f89583790510
+
 コードは Claude Code (Anthropic の AI) が書き、MIDy が仕様を決めて Ableton Live で確認しました。
 無保証です。サポート・不具合対応・要望への対応はしません (Issue / Pull Request も受け付けません)。
 ライセンスは AGPLv3 (LICENSE)。JUCE (AGPLv3) と VST3 SDK (MIT) を使っています。Copyright (C) 2026 MIDy
